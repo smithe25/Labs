@@ -3,8 +3,8 @@
 	.data	# Data declaration section
 
 zing:	.word	0, 1, 2, 3, 4, 5, 6, 7
-str1:	.asciz	"zing[4] now has "
-str2:	.asciz	"\nzing[5] now has "
+str1:	.asciiz	"zing[4] now has "
+str2:	.asciiz	"\nzing[5] now has "
 
 	.text
 
@@ -13,20 +13,20 @@ main:
 	li	a1, 4
 	jal	swap
 	
-	li	a7, 4		#system call for printing a string
-	la	a0, str1
+	li	a0, 4		#system call for printing a string
+	la	a1, str1
 	ecall
 
-	li	a7, 1		#system call for printing an integer in ASCII
-	lw	a0, 0(t1)
+	li	a0, 1		#system call for printing an integer in ASCII
+	lw	a1, 0(t1)
 	ecall
 
-	li	a7, 4		#system call for printing a string
-	la	a0, str2
+	li	a0, 4		#system call for printing a string
+	la	a1, str2
 	ecall
 	
-	li	a7, 1		#system call for printing an integer in ASCII
-	lw	a0, 4(t1)
+	li	a0, 1		#system call for printing an integer in ASCII
+	lw	a1, 4(t1)
 	ecall
 	
 	li	a7, 11		#system call for printing a character in ASCII
@@ -46,6 +46,9 @@ swap:
 				
 	sw		t2, 0(t1)	
 	sw		t0, 4(t1)	
+	addi t4, x0, 5
+	addi t5, x0, 7
+	add t6, t4, t5
 	ret		
 
 # END OF PROGRAM
