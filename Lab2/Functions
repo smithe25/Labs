@@ -1,0 +1,57 @@
+.data
+a: .space 4
+b: .space 4
+c: .space 4
+
+
+.text
+li t0, 5
+li t1, 10
+
+addi sp, sp, -4
+add a0, t0, x0
+sw a0, 0(sp)
+jal AddItUp
+
+la t2, a
+lw a1, 0(sp)
+addi sp, sp, 4
+sw a1, 0(t2) # Set a to the return value x
+
+
+addi sp, sp, -4 # Grow the stack by 1
+sw t1, 0(sp) # push 10 to the stack 
+jal AddItUp
+
+la t3, b
+lw a1, 0(sp)
+sw a1, 0(t3) # set b to a1
+addi sp, sp, 4
+
+lw t2, 0(t2) # Load a
+lw t3, 0(t3) # Load b
+
+add t4, t2, t3 # Compute a + b
+la t5, c
+sw t4, 0(t5) # set c to a + b
+
+
+
+
+AddItUp:
+li a0, 0 # i = 0
+li a1, 0 # x = 0
+lw a2, 0(sp)
+addi a2, a2, -1
+addi sp, sp, 4 # Clear the argument from the register
+
+For:
+blt a2, a0, endFor # branch if n < i
+add a1, a1, a0 # x + i
+addi a1 a1, 1 # x = x + 1
+addi a0, a0, 1 # increment i
+j For
+endFor:
+addi, sp, sp, -4
+sw a1, 0(sp) #store x into the register
+jr ra, 0 # Jump back to where AddItUp was called.

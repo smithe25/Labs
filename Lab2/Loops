@@ -1,0 +1,38 @@
+.data
+Z: .word 2
+i: .word 0
+
+.text
+li t6, 20
+li t5, 100
+la a0, i
+lw a0, 0(a0) # a0 gets i
+
+la a1, Z
+lw a1, 0(a1) #a1 gets Z
+
+slt t4, t6, a0
+
+
+Loop:
+bne t4, x0, While1
+addi a1, a1, 1
+addi a0, a0, 2
+slt t4, t6, a0 # check i > 20
+beq x0, x0, Loop
+
+
+While1: 
+beq a1, t5, While2
+addi a1, a1, 1
+beq x0, x0, While1
+
+While2:
+beq x0, a0, END
+addi a1, a1, -1
+addi a0, a0, -1
+beq x0, x0, While2
+
+END:
+sw a0, i, t1
+sw a1, Z, t1

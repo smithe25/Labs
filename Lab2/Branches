@@ -1,0 +1,57 @@
+.data
+A: .word 10
+B: .word 15
+C: .word 6
+Z: .word 0
+
+.text
+la a0, A
+lw a0, 0(a0) # A
+
+la a1, B 
+lw a1, 0(a1) # B
+
+la a2, C  
+lw a2, 0(a2) # C
+
+la a3, Z 
+lw a3, 0(a3) # Z
+
+li a4, 5  # Constant 5
+li a6, 7 # Constant 7
+
+
+# Logical comparison
+slt t0, a0, a1 # t0 gets A < B
+slt t1, a4, a2 # t1 gets C > 5
+and t2, t0, t1 # t2 gets (A < B) && (C > 5)
+
+addi, t3, a2, -6 # t3 gets C - 6
+slt t4, a1, a0 # t4 gets  A > B
+
+
+beq t2, x0, ElseIf # If t2 = 0, run ElseIf, otherwise Z = 1.
+addi, a3, a3, 1
+j End # Exit sequence
+
+
+
+
+ElseIf:
+beq x0, t3, ElseIfRun
+beq t4, x0, Else # If t5 = 0, run Else, otherwise Z = 2.
+ElseIfRun:
+addi a3, a3, 2 # Z gets 2
+j End # Exit sequence
+
+
+Else:
+addi a3, a3, 3
+
+
+End:
+neg a3, a3 # Z is always negated during the Switch case.
+sw a3, Z, t6
+
+
+
