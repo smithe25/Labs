@@ -3,7 +3,6 @@
 -- LAB #3
 --
 --------------------------------------------------------------------------------
-
 Library ieee;
 Use ieee.std_logic_1164.all;
 Use ieee.numeric_std.all;
@@ -165,8 +164,18 @@ entity shift_register is
 end entity shift_register;
 
 architecture shifter of shift_register is
-	
+	signal output : std_logic_vector(31 downto 0);
+
 begin
+output <= dataout;
+with dir & shamt select
+		dataout <= 
+					 "0" & output(30 downto 0) when "10001",
+					 "00" & output(29 downto 0) when "10010",
+					 output(31 downto 1) & bitAdd(0) when "00001",
+					 output(31 downto 2) & bitAdd(1 downto 0) when "00010",
+					 output when others;
+		
 	
 			 
 end architecture shifter;
