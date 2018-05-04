@@ -113,6 +113,8 @@ begin
 
 	enable8 <= enout32 AND enout16 AND enout8;
 	enable16 <= enout32 AND enout16;
+
+
 	end architecture biggermem;
 
 --------------------------------------------------------------------------------
@@ -139,11 +141,19 @@ component fulladder
           carry : out std_logic
          );
 end component;
-
+Signal Carry: std_logic_vector(32 downto 0);
+Signal B : std_logic_vector(31 downto 0);
 begin
+co <= Carry(32);
+Carry(0) <= add_sub;
 	-- insert code here
+with add_sub select
+	B <= datain_b when '0',
+	     NOT(datain_b) when '1',
+	     "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" when others;
+
 	Adder : for i in 31 downto 0 generate
-		Add: fulladder port map(datain_a(i), datain_b(i), add_sub, dataout(i), co);
+		Add: fulladder port map(datain_a(i), B(i), Carry(i), dataout(i), Carry(i + 1));
 	end generate;
 end architecture calc;
 
@@ -168,8 +178,10 @@ with dir & shamt select
 		dataout <= 
 					 "0" & datain(31 downto 1) when "100001",
 					 "00" & datain(31 downto 2) when "100010",
+				         "000" & datain(31 downto 3) when "100011",
 					 datain(30 downto 0) & "0" when "000001",
 					 datain(29 downto 0) & "00" when "000010",
+					 datain(28 downto 0) & "000" when "000011",
 					 datain when others;
 		
 	
