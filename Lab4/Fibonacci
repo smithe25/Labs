@@ -1,37 +1,39 @@
 .data
-a : .word 3
-b : .word 10
-c : .word 20
-
+n: .word 10
 .text
-
-li t3, 3
-sw t3, 0(sp)
+la t0, n
+lw a2, 0(t0)
 jal Fibonacci
-j EndFibonacci
+j Exit
 
 Fibonacci:
-lw a2, 0(sp)
-bne a2, zero, ElseIf
+
+
+
+li t3, 1
+bge a2, zero, Base2
 li a0, 0
 j End
 
-ElseIf:
-li t3, 1
-bne a2, t3, Else
+Base2:
+bne a2, t3, Recurse
 li a0, 1
 j End
 
-Else:
+Recurse:
 addi sp, sp, -12
-sw a0, 0(sp)
 addi a2, a2, -1
-sw a2, 4(sp)
+sw a2, 0(sp)
+sw ra, 4(sp)
+jal Fibonacci
+sw a0, 8(sp) 
+lw a2, 0(sp) 
 addi a2, a2, -1
-sw a2, 8(sp)
-jr ra, Fibonacci
-
+jal Fibonacci
+lw t4, 8(sp)
+add a0, a0, t4
+lw ra, 4(sp)
+addi sp, sp, 12
 End:
 jr ra, 0
-EndFibonacci:
-
+Exit:
