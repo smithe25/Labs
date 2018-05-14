@@ -13,7 +13,7 @@
 	Kel:	.asciz	"Equivalent Temperature(Kelvin): "
 	newln:	.asciz	"\r\n"
 
-	# Celsius = (Fahrenheit – 32.0) x 5.0 / 9.0 Kelvin = Celsius + 273.15
+	# Celsius = (Fahrenheit â€“ 32.0) x 5.0 / 9.0 Kelvin = Celsius + 273.15
 	.text
 		li	a7, 4			#system call for print string
 	la	a0, begn
