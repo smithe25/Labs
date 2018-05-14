@@ -70,6 +70,8 @@ BEGIN
 		control <= "01101"; -- by 1 bits should be 0x00002002
 		wait for 50 ns; 
 		control <= "10000"; -- Test Pass: Result = 0x11223344
+		wait for 50 ns;
+		control <= "11001";
 
 		wait; -- will wait forever
 	END PROCESS;

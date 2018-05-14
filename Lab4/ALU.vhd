@@ -121,11 +121,14 @@ architecture ALU_Arch of ALU is
 	end component shift_register;
 
 Signal addResult, shiftData, shiftResult, andResult, orResult, resultCopy: std_logic_vector(31 downto 0);
-Signal carryOut : std_logic;
+Signal carryOut, dataSelect : std_logic;
 Signal shiftAmount : std_logic_vector(4 downto 0);
 begin
 shiftAmount <= "000" & ALUCtrl(1 downto 0);
-shiftData <= DataIn1;
+dataSelect <= ALUCtrl(4);
+with dataSelect select
+shiftData <= DataIn1 when '0',
+DataIn2 when others;
 
 with ALUCtrl select
 	ALUResult <= 	addResult when "00000",
@@ -140,6 +143,14 @@ with ALUCtrl select
 			shiftResult when "01101", -- 1 bit right
 			shiftResult when "01110", -- 2 bits right
 			shiftResult when "01111", -- 3 bits right
+			shiftResult when "11000", -- shift 0 bits
+			shiftResult when "11001", -- 1 bit left
+			shiftResult when "11010", -- 2 bits left
+			shiftResult when "11011", -- 3 bits left
+			shiftResult when "11100", -- 0 bits right
+			shiftResult when "11101", -- 1 bit right
+			shiftResult when "11110", -- 2 bits right
+			shiftResult when "11111", -- 3 bits right
 			DataIn2 when"10000",
 			"00000000000000000000000000000000" when others;
 
