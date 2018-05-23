@@ -185,7 +185,6 @@ entity Registers is
 	 ReadData1: out std_logic_vector(31 downto 0);
 	 ReadData2: out std_logic_vector(31 downto 0));
 end entity Registers;
-signal DataInput : std_logic_vector(31 downto 0);
 architecture remember of Registers is
 	component register32
   	    port(datain: in std_logic_vector(31 downto 0);
@@ -193,12 +192,71 @@ architecture remember of Registers is
 		 writein32, writein16, writein8: in std_logic;
 		 dataout: out std_logic_vector(31 downto 0));
 	end component;
-	
+	signal DataX0, DataA0, DataA1, DataA2, DataA3, DataA4, DataA5, DataA6, DataA7 : std_logic_vector(31 downto 0);
+	signal writeToX0, writeToA0, writeToA1, writeToA2, writeToA3, writeToA4, writeToA5, writeToA6, writeToA7 : std_logic;
+	signal writeAddress : std_logic_vector(5 downto 0);
 begin
-    X0: register32: (DataInput, '1', '1', '1', WriteCmd, WriteCmd, WriteCmd, "0000000000000000000000000000000");
-    A0: register32: (DataInput, '1', '1', '1', WriteCmd, WriteCmd, WriteCmd, ReadData0);
-    A1: register32: 
-    -- Add your code here for the Register Bank implementation
+	DataX0 <= "00000000000000000000000000000000";
+	writeAddress <= WriteCmd & WriteReg;
+	X0 : register32 port map (WriteData, '0', '1', '1', '0', '0', '0', DataX0);
+	A0 : register32 port map (WriteData, '0', '1', '1', writeToA0, writeToA0, writeToA0, DataA0);
+	A1 : register32 port map (WriteData, '0', '1', '1', writeToA1, writeToA1, writeToA1, DataA1);
+	A2 : register32 port map (WriteData, '0', '1', '1', writeToA2, writeToA2, writeToA2, DataA2);
+	A3 : register32 port map (WriteData, '0', '1', '1', writeToA3, writeToA3, writeToA3, DataA3);
+	A4 : register32 port map (WriteData, '0', '1', '1', writeToA4, writeToA4, writeToA4, DataA4);
+	A5 : register32 port map (WriteData, '0', '1', '1', writeToA5, writeToA5, writeToA5, DataA5);
+	A6 : register32 port map (WriteData, '0', '1', '1', writeToA6, writeToA6, writeToA6, DataA6);
+	A7 : register32 port map (WriteData, '0', '1', '1', writeToA7, writeToA7, writeToA7, DataA7);
+
+	with ReadReg1 select
+		ReadData1 <= DataA0 when "01010",
+			     DataA1 when "01011",
+			     DataA2 when "01100",
+			     DataA3 when "01101",
+			     DataA4 when "01110",
+			     DataA5 when "01111",
+			     DataA6 when "10000",
+			     DataA7 when "10001",
+			     DataX0 when others;
+	with ReadReg2 select
+		ReadData2 <= DataA0 when "01010",
+			     DataA1 when "01011",
+			     DataA2 when "01100",
+			     DataA3 when "01101",
+			     DataA4 when "01110",
+			     DataA5 when "01111",
+			     DataA6 when "10000",
+			     DataA7 when "10001",
+			     DataX0 when others;
+	
+	with writeAddress select
+		writeToX0 <= '1' when "100000",
+			     '0' when others;
+	with writeAddress select
+		writeToA0 <= '1' when "101010",
+			     '0' when others;
+	with writeAddress select
+		writeToA1 <= '1' when "101011",
+			     '0' when others;
+	with writeAddress select
+		writeToA2 <= '1' when "101100",
+			     '0' when others;
+	with writeAddress select
+		writeToA3 <= '1' when "101101",
+			     '0' when others;
+	with writeAddress select
+		writeToA4 <= '1' when "101110",
+			     '0' when others;
+	with writeAddress select
+		writeToA5 <= '1' when "101111",
+			     '0' when others;
+	with writeAddress select
+		writeToA6 <= '1' when "110000",
+			     '0' when others;
+	with writeAddress select
+		writeToA7 <= '1' when "110001",
+			     '0' when others;
+---Add your code here for the Register Bank implementation
 
 end remember;
 

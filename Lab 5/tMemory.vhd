@@ -70,6 +70,7 @@ BEGIN
 		readReg2,
 		writeReg,
 		dataIn,
+
 		writeCmd,
 		dataOut1,
 		dataOut2
@@ -262,10 +263,14 @@ BEGIN
 		readReg2 <= "10000";
 		wait for 10 ns;	
 
-		readReg1 <= "10001";
-		readReg2 <= "00000";
-		wait for 10 ns;	
-
+		dataIn <= X"11111111";
+		writeReg <= "00000";
+		writeCmd <= '1';
+		wait for 10 ns;
+		writeCmd <= '0';
+		wait for 10 ns;
+		readReg1 <= "00000";
+		readReg2 <= "00000";	
 		wait; -- will wait forever
 	END PROCESS;
 
