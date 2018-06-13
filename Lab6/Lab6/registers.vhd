@@ -150,7 +150,7 @@ Carry(0) <= add_sub;
 with add_sub select
 	B <= datain_b when '0',
 	     NOT(datain_b) when '1',
-	     "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" when others;
+	     "ZZZZ" & "ZZZZ" & "ZZZZ" & "ZZZZ" & "ZZZZ" & "ZZZZ" & "ZZZZ" & "ZZZZ" when others;
 
 	Adder : for i in 31 downto 0 generate
 		Add: fulladder port map(datain_a(i), B(i), Carry(i), dataout(i), Carry(i + 1));

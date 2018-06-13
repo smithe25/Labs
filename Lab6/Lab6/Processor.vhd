@@ -95,23 +95,80 @@ architecture holistic of Processor is
 			dataout: out std_logic_vector(31 downto 0);
 			co: out std_logic);
 	end component adder_subtracter;
-signal PCin, PCout, four, PCaddOutput, ImmAddOutput, ImmGenOut, PCaddOutput, ImmAddOutput : std_logic_vector(31 downto 0);
-signal Instruction, WriteData , ReadData1 , ReadData2 std_logic_vector(31 downto 0);
-signal carryout , carryout2 , BranchSelect , RegWrite , Zero , MemRead , MemWrite , MemtoReg : std_logic;
-signal ImmgenSelect , Branch , std_logic_vector(1 downto 0);
+--signal PCin, PCout, four, PCaddOutput, ImmAddOutput, ImmGenOut, PCaddOutput, ImmAddOutput : std_logic_vector(31 downto 0);
+--signal Instruction, WriteData , ReadData1 , ReadData2 std_logic_vector(31 downto 0);
+--signal carryout , carryout2 , BranchSelect , RegWrite , Zero , MemRead , MemWrite , MemtoReg : std_logic;
+--signal ImmgenSelect , Branch , std_logic_vector(1 downto 0;)
+
+-- Program Counter signals
+signal PCin, PCout : std_logic_vector(31 downto 0);
+
+--PC Adder signals
+signal PCaddOutput, four : std_logic_vector(31 downto 0);
+signal carryout : std_logic;
+
+-- Immediate Adder signals
+signal ImmAddOutput, ImmGenOut : std_logic_vector(31 downto 0);
+signal carryout2 : std_logic;
+
+-- Adder MUX signals
+signal BranchSelect : std_logic;
+signal PCMuxOutput : std_logic_vector(31 downto 0);
+-- Instruction Memory signals
+signal Instruction : std_logic_vector(31 downto 0);
+
+-- Control signals
+signal Branch, ImmGenSelect : std_logic_vector(1 downto 0);
+signal ALUCtrl : std_logic_vector(4 downto 0);
+signal MemRead, MemtoReg, MemWrite, ALUSrc, RegWrite : std_logic;
+
+-- Register Module signals
+signal WriteData : std_logic_vector(31 downto 0);
+signal ReadData1, ReadData2 : std_logic_vector(31 downto 0);
+
+-- Immediate Generator signals
+	-- All signals are already created. ImmGenSelect, Instruction, ImmGenOutput.
+
+-- Register MUX signals
+signal RegisterMuxOutput : std_logic_vector(31 downto 0);
+
+-- ALU signals
+signal ALUResult : std_logic_vector(31 downto 0);
+signal Zero : std_logic;
+
+-- Data Memory Signals
+signal DataReadOutput : std_logic_vector(31 downto 0);
+
+-- Data Memory Mux
+
+
 begin
 	-- Add your code here
-	Programcounter : ProgramCounter port map(reset, clock, PCin, PCout);
-	PCadder : adder_subtacter port map(PCout, four, '0', PCaddOutput, carryout);
+	BranchSelect <= '0';
+	four <= "00000000000000000000000000000100";
+	Programcount : ProgramCounter port map(reset, clock, PCin, PCout);
+	
+	PCadder : adder_subtracter port map(PCout, four, '0', PCaddOutput, carryout);
+	
 	ImmAdder : adder_subtracter port map(PCout, ImmGenOut, '0', ImmAddOutput, carryout2);
+	
 	AdderMUX : BusMux2to1 port map(BranchSelect, PCaddOutput, ImmAddOutput, PCMuxOutput);
-	InstructionMemory : InstructionRAM port map(reset, clock, PCout, Instruction);
+	
+	InstructionMemory : InstructionRAM port map(reset, clock, PCout(31 downto 2), Instruction);
+
+	ControlModule : Control port map(clock, Instruction(6 downto 0), Instruction(14 downto 12), Instruction(31 downto 25), Branch, MemRead, MemtoReg, ALUCtrl, MemWrite, ALUSrc, RegWrite, ImmGenSelect);
+	
 	RegisterModule : Registers port map(Instruction(19 downto 15), Instruction(24 downto 20), Instruction(11 downto 7), WriteData, RegWrite, ReadData1, ReadData2);
+	
 	ImmediateGenerator : Immgen port map(Instruction, ImmGenSelect, ImmGenOut);
-	RegisterMUX : BusMux2to1 port map(ALUSrc, ReadData1, ImmGenOutput, RegisterMuxOutput);
-	ProcessorALU : ALU(ReadData1, RegisterMuxOutput, ALUCtrl, Zero, ALUResult);
+	
+	RegisterMUX : BusMux2to1 port map(ALUSrc, ReadData1, ImmGenOut, RegisterMuxOutput);
+	
+	ProcessorALU : ALU port map (ReadData1, RegisterMuxOutput, ALUCtrl, Zero, ALUResult);
+	
 	DataMemory : RAM port map(reset, clock, MemRead, MemWrite,ALUResult(29 downto 0), ReadData2, DataReadOutput);
-	DataMemoryMUX : BusMux2to1 port map(MemtoReg, ALUResult, ReadDataOutput, WriteData);
+	
+	DataMemoryMUX : BusMux2to1 port map(MemtoReg, ALUResult, DataReadOutput, WriteData);
 	
 end holistic;
 
