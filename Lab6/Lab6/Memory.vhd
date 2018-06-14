@@ -3,6 +3,7 @@
 -- LAB #5 - Memory and Register Bank
 --
 --------------------------------------------------------------------------------
+
 Library ieee;
 Use ieee.std_logic_1164.all;
 Use ieee.numeric_std.all;
@@ -158,7 +159,9 @@ begin
 
     if falling_edge(Clock) then
 	if(WE = '1' AND addressInteger <= 127) then
-		i_ram(addressInteger) <= DataIn;
+		for i in 0 to 127 loop
+			i_ram(i) <= DataIn(31 downto 0);
+		end loop;
 	-- Add code to write data to RAM
 	-- Use to_integer(unsigned(Address)) to index the i_ram array
     end if;

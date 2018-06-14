@@ -95,13 +95,9 @@ architecture holistic of Processor is
 			dataout: out std_logic_vector(31 downto 0);
 			co: out std_logic);
 	end component adder_subtracter;
---signal PCin, PCout, four, PCaddOutput, ImmAddOutput, ImmGenOut, PCaddOutput, ImmAddOutput : std_logic_vector(31 downto 0);
---signal Instruction, WriteData , ReadData1 , ReadData2 std_logic_vector(31 downto 0);
---signal carryout , carryout2 , BranchSelect , RegWrite , Zero , MemRead , MemWrite , MemtoReg : std_logic;
---signal ImmgenSelect , Branch , std_logic_vector(1 downto 0;)
 
 -- Program Counter signals
-signal PCin, PCout : std_logic_vector(31 downto 0);
+signal PCout : std_logic_vector(31 downto 0);
 
 --PC Adder signals
 signal PCaddOutput, four : std_logic_vector(31 downto 0);
@@ -141,12 +137,21 @@ signal DataReadOutput : std_logic_vector(31 downto 0);
 
 -- Data Memory Mux
 
-
+signal writeRegister : std_logic_vector(4 downto 0);
+signal Register1 : std_logic_vector(4 downto 0);
+signal Register2 : std_logic_vector(4 downto 0);
 begin
 	-- Add your code here
-	BranchSelect <= '0';
-	four <= "00000000000000000000000000000100";
-	Programcount : ProgramCounter port map(reset, clock, PCin, PCout);
+	with Branch & Zero select
+	BranchSelect <= '1' when "011", -- BEQ and equal
+			'1' when "100", -- BNE and not equal
+			'0' when others;
+
+	four <= "0000" & "0000" & "0000" & "0000" & "0000" & "0000" & "0000" & "0100";
+	writeRegister <= Instruction(11 downto 7);
+	Register1 <= Instruction(19 downto 15);
+	Register2 <= Instruction(24 downto 20);
+	Programcount : ProgramCounter port map(reset, clock, PCMuxOutput, PCout);
 	
 	PCadder : adder_subtracter port map(PCout, four, '0', PCaddOutput, carryout);
 	
@@ -158,7 +163,7 @@ begin
 
 	ControlModule : Control port map(clock, Instruction(6 downto 0), Instruction(14 downto 12), Instruction(31 downto 25), Branch, MemRead, MemtoReg, ALUCtrl, MemWrite, ALUSrc, RegWrite, ImmGenSelect);
 	
-	RegisterModule : Registers port map(Instruction(19 downto 15), Instruction(24 downto 20), Instruction(11 downto 7), WriteData, RegWrite, ReadData1, ReadData2);
+	RegisterModule : Registers port map(Register1, Register2, writeRegister, WriteData, RegWrite, ReadData1, ReadData2);
 	
 	ImmediateGenerator : Immgen port map(Instruction, ImmGenSelect, ImmGenOut);
 	
@@ -166,7 +171,7 @@ begin
 	
 	ProcessorALU : ALU port map (ReadData1, RegisterMuxOutput, ALUCtrl, Zero, ALUResult);
 	
-	DataMemory : RAM port map(reset, clock, MemRead, MemWrite,ALUResult(29 downto 0), ReadData2, DataReadOutput);
+	DataMemory : RAM port map(reset, clock, MemRead, MemWrite, ALUResult(31 downto 2), ReadData2, DataReadOutput);
 	
 	DataMemoryMUX : BusMux2to1 port map(MemtoReg, ALUResult, DataReadOutput, WriteData);
 	

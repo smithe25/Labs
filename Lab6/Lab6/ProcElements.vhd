@@ -26,8 +26,8 @@ with Input select
 Immediate <= SignExtend & Instruction(31 downto 20) when "00", -- Addi, Andi, Ori, BEQ, BNE, LW, Slli or Srli
 	     SignExtend & Instruction(31 downto 25) & Instruction(11 downto 7) when "01", -- SW
 	     Instruction(31 downto 12) & "000000000000" when "10", -- Lui
-	     SignExtend & Instruction(31)  & Instruction(30 downto 25) & Instruction(12 downto 9) & Instruction(7) & Instruction(30 downto 25) & Instruction(11 downto 8) when "11",
-	     "ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ" when others; 
+	     SignExtend  &Instruction(31) & Instruction(7) & Instruction(30 downto 25) & Instruction(12 downto 9) when "11",
+	     "0000" & "0000" & "0000" & "0000" & "0000" & "0000" & "0000" & "0000" when others; 
 
 end Generation;
 	    
@@ -87,6 +87,7 @@ ALUSrc <= '0' when "0110011", -- Rtype
 with opcode select
 MemtoReg <= '0' when "0010011", -- Itype
 	    '0' when "0110011", -- Rtype
+	    '0' when "0110111", -- LUI
             '1' when "0000011", -- LW
 	    'Z' when others; -- SW
 	    
@@ -95,20 +96,19 @@ Branch <= "01" when "1100011000", -- BEQ
 	  "10" when "1100011001", -- BNE
 	  "00" when others;
 
-
-with opcode & funct7  & funct3 select
-ALUCtrl <= "00000" when "01100110000000000", -- Add
-	   "00000" when "00100110000000000", -- Addi
-	   "00001" when "01100110100000000", -- Sub
-	   "00010" when "01100110000000111", -- And
-	   "00010" when "0010011111XXXXXXX", -- Andi
-	   "00011" when "01100110000000110", -- Or
-	   "00011" when "0010011XXXXXXX110", -- Ori
-	   "01000" when "01100110000000001", --Sll
-	   "01000" when "00100110000000001", -- Slli
-	   "01100" when "01100110000000101", -- Srl
-	   "01100" when "00100110000000101", -- Srli
-	    "ZZZZZ" when others;
+ALUCtrl <= "00000" when opcode & funct7 & funct3 = "01100110000000000" else -- Add 
+	   "00000" when opcode & funct3 = "0010011000" else 		    -- Addi
+	   "00001" when opcode & funct7 & funct3 = "01100110100000000" else -- Sub
+	   "00010" when opcode & funct7 & funct3 = "01100110000000111" else -- And
+	   "00010" when opcode & funct7 & funct3 = "0010011111" else 	    -- Andi
+	   "00011" when opcode & funct7 & funct3 = "01100110000000110" else -- Or
+	   "00011" when opcode & funct3 = "0010011110" else 	            -- Ori
+	   "01000" when opcode & funct7 & funct3 = "01100110000000001" else --Sll
+	   "01000" when opcode & funct7 & funct3 = "00100110000000001" else -- Slli
+	   "01100" when opcode & funct7 & funct3 = "01100110000000101" else -- Srl
+	   "01100" when opcode & funct7 & funct3 = "00100110000000101" else -- Srli
+	   "10000" when opcode = "0110111" else
+	    "ZZZZZ";
 
 with opcode select
 ImmGen <= "00" when "0010011", -- Addi
@@ -121,7 +121,6 @@ ImmGen <= "00" when "0010011", -- Addi
 with opcode select
 MemRead <= '1' when "0000011", -- LW
 	   '0' when others;
-
 
 with opcode select
 MemWrite <= '1' when "0100011", -- SW
@@ -150,8 +149,16 @@ entity ProgramCounter is
 end entity ProgramCounter;
 
 architecture executive of ProgramCounter is
+signal PCNext : std_logic_vector(31 downto 0);
 begin
 -- Add your code here
-
+	ClockSignal: process(Reset, Clock) is
+		begin
+		if(Reset = '1') then
+			PCout <= "0000" & "0000" & "0100" & "0000" & "0000" & "0000" & "0000" & "0000";
+		elsif (rising_edge(clock)) then
+			PCout <= PCin;
+		end if;
+	end process;
 end executive;
 --------------------------------------------------------------------------------
